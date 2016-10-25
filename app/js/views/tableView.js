@@ -1,4 +1,4 @@
-/* global $ */
+/* global document, $ */
 import {View} from 'backbone';
 
 import 'bootstrap';
@@ -405,10 +405,23 @@ export default class TableView extends View {
       params: this.params
     }));
     this.$('a[data-toggle=popover]').popover();
+
+    $(document).on('click', function (event) {
+      $('[data-toggle="popover"],[data-original-title]').each(function () {
+        if (!$(this).is(event.target) &&
+          $(this).has(event.target).length === 0 &&
+          $('.popover').has(event.target).length === 0) {
+          (($(this).popover('hide').data('bs.popover') || {}).inState || {}).click = false;
+        }
+      });
+    });
+
     $('[data-gohan="error"]', this.el).append(this.errorView.el);
     return this;
   }
   close() {
+    $(document).off('click');
+
     if (!this.childview) {
       this.app.router.setQueryParams();
     }
